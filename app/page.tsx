@@ -1,6 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+
+// ─── Interfaces ───────────────────────────────────────────────────────────
+
+interface Problem {
+  id: number
+  title: string
+  pattern: string
+  difficulty: 'Easy' | 'Medium' | 'Hard'
+}
+
+interface DashboardStats {
+  totalSolved: number
+  byDifficulty: {
+    Easy: number
+    Medium: number
+    Hard: number
+  }
+  byPattern: Record<string, number>
+}
+
+interface ProgressItem {
+  problem_id: number
+  solved_date: string
+}
 
 // ─── Theme-aware style maps ────────────────────────────────────────────────
 
@@ -56,7 +80,7 @@ function getLast12Weeks() {
   return days
 }
 
-function getCountByDate(progressData: any[]) {
+function getCountByDate(progressData: ProgressItem[]) {
   const countMap: Record<string, number> = {}
   progressData.forEach(item => {
     const date = item.solved_date
@@ -68,43 +92,65 @@ function getCountByDate(progressData: any[]) {
 // ─── Component ────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const [problems, setProblems] = useState<any[]>([])
+  const [problems, setProblems] = useState<Problem[]>([])
   const [loading, setLoading] = useState(true)
   const [pattern, setPattern] = useState('')
   const [difficulty, setDifficulty] = useState('')
   const [message, setMessage] = useState('')
-  const [stats, setStats] = useState<any>(null)
-  const [progressData, setProgressData] = useState<any[]>([])
-  const [solvedIds, setSolvedIds] = useState<Set<number>>(new Set())
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [progressData, setProgressData] = useState<ProgressItem[]>([])
   const [isDark, setIsDark] = useState(true)
 
-  // Sync solvedIds from progressData (source of truth from API)
+  // Derive solved IDs from progressData
+  const solvedIds = useMemo(() => 
+    new Set<number>(progressData.map(item => item.problem_id)), 
+    [progressData]
+  )
+
+  const USER_ID = 'd4a4ea2e-298d-479f-b0f2-f336859b2515'
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const pUrl = `/api${pattern || difficulty ? '?' : ''}${pattern ? `pattern=${pattern}` : ''}${pattern && difficulty ? '&' : ''}${difficulty ? `difficulty=${difficulty}` : ''}`
+      
+      const [pRes, sRes, prRes] = await Promise.all([
+        fetch(pUrl),
+        fetch(`/api/stats?userId=${USER_ID}`),
+        fetch(`/api/progress?userId=${USER_ID}`)
+      ])
+
+      const [pData, sData, prData] = await Promise.all([
+        pRes.json(),
+        sRes.json(),
+        prRes.json()
+      ])
+
+      setProblems(pData)
+      setStats(sData)
+      setProgressData(prData)
+    } catch (error) {
+      console.error("Failed to fetch data", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    const ids = new Set<number>(progressData.map((item: any) => item.problem_id).filter(Boolean))
-    setSolvedIds(ids)
-  }, [progressData])
+    fetchData()
+  }, [pattern, difficulty])
 
   const handleMarkSolved = async (problemId: number) => {
     try {
       const response = await fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: 'd4a4ea2e-298d-479f-b0f2-f336859b2515',
-          problemId,
-          confidence: 3,
-          notes: '',
-        }),
+        body: JSON.stringify({ userId: USER_ID, problemId, confidence: 3, notes: '' }),
       })
 
       if (response.ok) {
         setMessage('Problem marked as solved!')
-        fetch('/api/stats?userId=d4a4ea2e-298d-479f-b0f2-f336859b2515')
-          .then(res => res.json())
-          .then(data => setStats(data))
-        fetch('/api/progress?userId=d4a4ea2e-298d-479f-b0f2-f336859b2515')
-          .then(res => res.json())
-          .then(data => setProgressData(data))
+        fetchData() // Refresh everything
         setTimeout(() => setMessage(''), 3000)
       } else {
         setMessage('Failed to mark as solved')
@@ -114,31 +160,7 @@ export default function Home() {
     }
   }
 
-  useEffect(() => {
-    const buildUrl = () => {
-      let url = '/api'
-      const params = []
-      if (pattern) params.push(`pattern=${pattern}`)
-      if (difficulty) params.push(`difficulty=${difficulty}`)
-      if (params.length > 0) url += '?' + params.join('&')
-      return url
-    }
-
-    setLoading(true)
-    fetch(buildUrl())
-      .then(res => res.json())
-      .then(data => { setProblems(data); setLoading(false) })
-      .catch(() => setLoading(false))
-
-    fetch('/api/stats?userId=d4a4ea2e-298d-479f-b0f2-f336859b2515')
-      .then(res => res.json())
-      .then(data => setStats(data))
-
-    fetch('/api/progress?userId=d4a4ea2e-298d-479f-b0f2-f336859b2515')
-      .then(res => res.json())
-      .then(data => setProgressData(data))
-  }, [pattern, difficulty])
-
+  // Heatmap Logic
   const countMap = getCountByDate(progressData)
   const dates = getLast12Weeks()
   const heatmapData = dates.map(date => ({ date, count: countMap[date] || 0 }))
@@ -146,11 +168,6 @@ export default function Home() {
   for (let i = 0; i < heatmapData.length; i += 7) {
     weeks.push(heatmapData.slice(i, i + 7))
   }
-
-  const totalSolved = stats?.totalSolved ?? 0
-  const easyCount = (stats?.byDifficulty?.Easy ?? 0) as number
-  const mediumCount = (stats?.byDifficulty?.Medium ?? 0) as number
-  const hardCount = (stats?.byDifficulty?.Hard ?? 0) as number
 
   // ─── Theme tokens ──────────────────────────────────────────────────────
   const t = {
@@ -216,8 +233,8 @@ export default function Home() {
       ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
       : 'bg-white hover:bg-slate-100 text-slate-600 ring-1 ring-slate-200',
     glowA:          isDark ? 'bg-indigo-600/10'       : 'bg-indigo-300/20',
-    glowB:          isDark ? 'bg-violet-600/8'        : 'bg-violet-200/20',
-    glowC:          isDark ? 'bg-indigo-500/6'        : 'bg-indigo-200/20',
+    glowB:          isDark ? 'bg-violet-600/8'         : 'bg-violet-200/20',
+    glowC:          isDark ? 'bg-indigo-500/6'         : 'bg-indigo-200/20',
   }
 
   const selectStyle = {
@@ -229,7 +246,6 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen ${t.pageBg} ${t.pageText} font-mono selection:bg-indigo-500/30 transition-colors duration-300`}>
-
       {/* Ambient glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute -top-40 -left-40 w-96 h-96 rounded-full blur-3xl transition-colors duration-300 ${t.glowA}`} />
@@ -238,7 +254,6 @@ export default function Home() {
       </div>
 
       <div className="relative max-w-5xl mx-auto px-6 py-12">
-
         {/* Header */}
         <div className="mb-12 flex items-start justify-between">
           <div>
@@ -252,7 +267,6 @@ export default function Home() {
             <p className={`${t.mutedText} text-sm mt-1`}>stay consistent. stay sharp.</p>
           </div>
 
-          {/* Theme Toggle */}
           <button
             onClick={() => setIsDark(d => !d)}
             className={`mt-1 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 ${t.toggleBg}`}
@@ -272,12 +286,12 @@ export default function Home() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-            {([
-              { label: 'Total Solved', value: totalSolved, accent: t.statAccents.total,  ring: t.statRings.total },
-              { label: 'Easy',         value: easyCount,   accent: t.statAccents.easy,   ring: t.statRings.easy },
-              { label: 'Medium',       value: mediumCount, accent: t.statAccents.medium, ring: t.statRings.medium },
-              { label: 'Hard',         value: hardCount,   accent: t.statAccents.hard,   ring: t.statRings.hard },
-            ] as const).map(({ label, value, accent, ring }) => (
+            {[
+              { label: 'Total Solved', value: stats.totalSolved, accent: t.statAccents.total,  ring: t.statRings.total },
+              { label: 'Easy',         value: stats.byDifficulty.Easy,   accent: t.statAccents.easy,   ring: t.statRings.easy },
+              { label: 'Medium',       value: stats.byDifficulty.Medium, accent: t.statAccents.medium, ring: t.statRings.medium },
+              { label: 'Hard',         value: stats.byDifficulty.Hard,   accent: t.statAccents.hard,   ring: t.statRings.hard },
+            ].map(({ label, value, accent, ring }) => (
               <div key={label} className={`${t.cardBg} backdrop-blur rounded-2xl p-5 ring-1 ${ring} transition-colors duration-300`}>
                 <p className={`text-xs ${t.labelText} uppercase tracking-widest mb-2`}>{label}</p>
                 <p className={`text-3xl font-bold tabular-nums ${accent}`}>{value}</p>
@@ -381,7 +395,7 @@ export default function Home() {
                 <p className="text-sm">No problems found</p>
               </div>
             ) : (
-              problems.map((problem: any, idx: number) => {
+              problems.map((problem, idx) => {
                 const isSolved = solvedIds.has(problem.id)
                 return (
                   <div
