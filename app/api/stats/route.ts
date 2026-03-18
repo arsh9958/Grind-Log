@@ -32,17 +32,16 @@ export async function GET(request: Request) {
   const stats = {
     totalSolved: progress.length,
     byPattern: {} as Record<string, number>,
-    byDifficulty: { Easy: 0, Medium: 0, Hard: 0 }
+    byDifficulty: { Easy: 0, Medium: 0, Hard: 0 } as Record<'Easy' | 'Medium' | 'Hard', number>
   }
 
-progress.forEach((p: any) => {
+  progress.forEach((p: any) => {
     const pattern: string = p.problems.pattern
-    const difficulty = p.problems.difficulty as 'Easy' | 'Medium' | 'Hard'
+    const difficulty: 'Easy' | 'Medium' | 'Hard' = p.problems.difficulty
 
     stats.byPattern[pattern] = (stats.byPattern[pattern] || 0) + 1
-    stats.byDifficulty[difficulty]++
+    stats.byDifficulty[difficulty] = (stats.byDifficulty[difficulty] || 0) + 1
   })
-
 
   return NextResponse.json(stats)
 }
