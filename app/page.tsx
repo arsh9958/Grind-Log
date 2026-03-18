@@ -1,5 +1,5 @@
 'use client'
-
+// @ts-ignore
 import { useEffect, useState, useMemo } from 'react'
 
 // ─── Interfaces ───────────────────────────────────────────────────────────
