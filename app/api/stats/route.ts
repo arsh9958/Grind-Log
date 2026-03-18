@@ -35,13 +35,14 @@ export async function GET(request: Request) {
     byDifficulty: { Easy: 0, Medium: 0, Hard: 0 }
   }
 
-  progress.forEach((p: any) => {
-    const pattern = p.problems.pattern
-    const difficulty = p.problems.difficulty
+progress.forEach((p: any) => {
+    const pattern: string = p.problems.pattern
+    const difficulty = p.problems.difficulty as 'Easy' | 'Medium' | 'Hard'
 
     stats.byPattern[pattern] = (stats.byPattern[pattern] || 0) + 1
     stats.byDifficulty[difficulty]++
   })
+
 
   return NextResponse.json(stats)
 }
