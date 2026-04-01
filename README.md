@@ -27,6 +27,70 @@ Following modern web standards, `grind.log` is optimized for mobile browsers to 
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Node.js 18+ and npm/yarn installed
+- Git
+
+### Installation
+
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/arsh9958/Grind-Log.git](https://github.com/arsh9958/Grind-Log.git)
+   git clone https://github.com/arsh9958/Grind-Log.git
+   cd Grind-Log
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
+
+## 📊 How It Works
+
+### Tracking Your Progress
+1. Log into the application with your preferred authentication method.
+2. Input LeetCode problems you've solved along with difficulty and pattern.
+3. The dashboard automatically updates with your activity and statistics.
+
+### Dashboard Overview
+- **Activity Heatmap:** See your commitment level across 12 weeks at a glance.
+- **Stats Cards:** Quick metrics for total problems, patterns, and difficulty distribution.
+- **Problem Browser:** Search, filter, and mark problems as solved.
+
+## 🎯 Use Cases
+- Track consistent daily DSA practice
+- Visualize progress toward coding interview preparation
+- Identify weak areas in problem patterns
+- Maintain motivation through visual achievements
+
+## 🤝 Contributing
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙋 Support & Feedback
+Have questions or suggestions? Feel free to:
+- Open an [issue](https://github.com/arsh9958/Grind-Log/issues)
+- Contact the maintainer at [GitHub](https://github.com/arsh9958)
+
+---
+
+Made with ❤️ by [arsh9958](https://github.com/arsh9958)
