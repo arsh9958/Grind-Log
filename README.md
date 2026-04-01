@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# grind.log 📊
+**Stay consistent. Stay sharp.**
 
-## Getting Started
+`grind.log` is a high-performance, minimalist progress tracker for LeetCode and DSA practice. Built with **Next.js** and **React**, it allows users to visualize their daily coding activity, track problem-solving patterns, and maintain a consistent "grind" through a polished, app-like interface.
 
-First, run the development server:
+[Live Demo](https://leetcode-pl52h1aa6-arsh9958s-projects.vercel.app/) | [GitHub Repo](https://github.com/arsh9958/Grind-Log)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
+* **Activity Heatmap:** A GitHub-style contribution graph to visualize consistency over the last 12 weeks.
+* **Pattern Breakdown:** Categorizes solved problems into data structure patterns (Arrays, DP, Trees, etc.).
+* **Difficulty Analytics:** Instant overview of Easy, Medium, and Hard problems solved.
+* **Interactive Problem List:** Filterable list of common DSA problems with "mark as solved" functionality.
+* **Modern UI/UX:** Built with a "mobile-first" approach, featuring smooth transitions, clean cards, and a dedicated dark mode.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
+* **Framework:** [Next.js 14+](https://nextjs.org/) (App Router)
+* **Library:** [React](https://reactjs.org/)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+* **Icons:** [Lucide React](https://lucide.dev/)
+* **Deployment:** [Vercel](https://vercel.com/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📱 Mobile-First Focus
+Following modern web standards, `grind.log` is optimized for mobile browsers to ensure a seamless "app-like" experience. This includes:
+* Responsive grid layouts for analytics cards.
+* Touch-friendly interaction targets.
+* Fast load times and zero Cumulative Layout Shift (CLS).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/arsh9958/Grind-Log.git](https://github.com/arsh9958/Grind-Log.git)
